@@ -1,6 +1,6 @@
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for,jsonify
 import tensorflow as tf
-#from tensorflow.python.tf.keras.backend import set_session
+import cv2
 import numpy as np
 import logging.config
 from classificador_inseto import model, predict, predict_processing, Init_Model
@@ -33,11 +33,20 @@ def predic_method():
 
         data = request.form
         image_file = request.files['image']
-
         image_bytes = np.fromstring(image_file.read(), np.uint8)
-        resultado = predict(image_bytes)
-        print(resultado)
-        return {'predicted': resultado}
+
+        image = cv2.imdecode(image_bytes, cv2.IMREAD_COLOR)
+        image_resized = cv2.resize(image, (299, 299))
+
+        image_array = np.array(image_resized)
+        image_array = np.expand_dims(image_array, axis=0)
+        image_array = image_array/255
+        print(image_array.shape)
+        print(image_array)
+        resultado = predict(image_array)
+        print("PREDITO:",resultado)
+        return jsonify({'predicted': resultado.tolist()})
+
     except Exception as e:
         logger.exception("ERRO ao processar predict ")
         return ({'score': None, 'result': None, 'status': 'ERRO AO DECODIFICAR JSON!'}, 400)

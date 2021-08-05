@@ -1,4 +1,5 @@
-modelo.h5
+*.h5
 __pycache__
-.pyc
-.log
+*.pyc
+*.log
+*.tmp
