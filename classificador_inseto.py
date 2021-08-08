@@ -167,7 +167,7 @@ def Init_Model():
 
 
 def predict(image):
-    result = model.predict(image)
+    result = model.predict_classes(image)
     return result
 
 
