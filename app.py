@@ -1,9 +1,9 @@
-from flask import Flask, request, redirect, url_for,jsonify
+from flask import Flask, request, redirect, url_for, jsonify
 import tensorflow as tf
 import cv2
 import numpy as np
 import logging.config
-from classificador_inseto import model, predict, predict_processing, Init_Model
+from classificador_inseto import model, predict, predict_processing, Init_Model, get_GBIFCODE
 VERSAO = "0.1"
 app = Flask(__name__)
 
@@ -41,28 +41,13 @@ def predic_method():
         image_array = np.array(image_resized)
         image_array = np.expand_dims(image_array, axis=0)
         image_array = image_array/255
-        print(image_array.shape)
-        print(image_array)
         resultado = predict(image_array)
-        print("PREDITO:",resultado)
-        return jsonify({'predicted': resultado.tolist()})
+        gbif_insect = get_GBIFCODE(resultado.max())
+        return jsonify({'gbif_max': gbif_insect, 'predicted': resultado.tolist()})
 
     except Exception as e:
         logger.exception("ERRO ao processar predict ")
         return ({'score': None, 'result': None, 'status': 'ERRO AO DECODIFICAR JSON!'}, 400)
-
-
-# def modelo(image):
-#     try:
-#         with graph.as_default():
-#             set_session(sess)
-#             predicted = model.predict(image, batch_size=1, verbose=1)[0]*100
-#         #predicted = np.round(predicted)
-#         return predicted
-#     except Exception as e:
-#         logger.exception(
-#             "ERRO ao processar modelo! ")
-#         return None
 
 
 if __name__ == "__main__":
